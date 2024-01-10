@@ -1,0 +1,6 @@
+.idea/*
+history/*
+__pycache__/*
+*/__pycache__/*
+*/*/__pycache__/*
+tests/.pycache/*
