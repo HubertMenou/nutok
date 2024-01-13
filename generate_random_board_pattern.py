@@ -45,7 +45,7 @@ def try_a_game(order=6, pick_attempts=20, verbose=False):
             droppable = [e for e in eval_drop if e[2]]
 
             if len(droppable) == 0:
-                stack.append_and_shuffle(t)
+                stack.randomly_append(t)
                 t = stack.pick()
             else:
                 okay = True

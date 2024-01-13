@@ -233,7 +233,7 @@ class CliGame:
             return False
         token = self.players[player_id]['tokens'][token_index]
         del self.players[player_id]['tokens'][token_index]
-        self.stack.append_and_shuffle(token)
+        self.stack.randomly_append(token)
         new_token = self.stack.pick()
         self.add_token_to_player(player_id, new_token)
         return True

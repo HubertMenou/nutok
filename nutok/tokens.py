@@ -107,7 +107,7 @@ class TokenSet:
         A line is said to be "consistent" iff:
         - it is a line of unique shapes, with always the same color,
         - it is a line of unique colors, with always the same shape.
-        Trivial lines are supposed to always be consistent (len 0 or 1).
+        Trivial lines are assumed to be consistent (len 0 or 1).
         """
         if len(line) <= 1:
             return True
@@ -151,20 +151,30 @@ class TokenSet:
 class TokenStack:
 
     def __init__(self, ts: TokenSet):
+        """Standard token stack, with 3 times as many
+        tokens as in the provided token set"""
         self.stack = ts.all_tokens() + ts.all_tokens() + ts.all_tokens()
         self.shuffle()
 
     def is_empty(self):
+        """Self-explanatory"""
         return len(self.stack) == 0
 
     def pick(self) -> Token:
+        """Returns a token from the stack
+        Errors out if the stack is empty."""
         t = self.stack[-1]
         self.stack = self.stack[:-1]
         return t
 
-    def append_and_shuffle(self, t: Token):
-        self.stack.append(t)
-        self.shuffle()
+    def randomly_append(self, t: Token):
+        """Appends t at a random place in the stack"""
+        if self.is_empty():
+            self.stack.append(t)
+            return
+        idx = random.randint(0, len(self.stack) - 1)
+        self.stack.insert(idx, t)
 
     def shuffle(self):
+        """Randomly shuffles the entire stack"""
         random.shuffle(self.stack)
