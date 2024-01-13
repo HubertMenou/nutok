@@ -3,6 +3,9 @@ from nutok.tokens import Shape, Color, Token, TokenSet
 from nutok.directions import Direction, Vertical, Horizontal
 
 
+LOCATION = Tuple[int, int]
+
+
 class Board:
 
     TOKEN_SEPARATOR = "  "
@@ -109,8 +112,8 @@ class Board:
         return len(self.dropped)
 
     def add_single_token(self, token: Token, i: int, j: int) -> bool:
-        """Adds provided token at (i, j). Checks if
-        Returns True iff piece could be dropped"""
+        """Adds provided token at (i, j). Checks if token is droppable.
+        Returns True iff token could be dropped"""
         droppable = self.single_droppable(token, i, j)
         if droppable:
             self.add_single_token_no_check(token, i, j)
@@ -148,6 +151,76 @@ class Board:
         # The new horizontal line must be consistent
         line_h = self.get_widest_line(i, j, Horizontal, token=token)
         if not self.token_set.line_consistency(line_h):
+            return False
+
+        return True
+
+    def add_multi_token(self, tokens: List[Token], pos_a: LOCATION, pos_b: LOCATION) -> bool:
+        """Adds provided tokens along the line defined by
+        the locations `pos_a` and `pos_b` (both ends included).
+        Checks this line can be dropped.
+        Returns True iff all tokens could be dropped"""
+        droppable = self.multi_droppable(tokens, pos_a, pos_b)
+
+        if not droppable:
+            return False
+
+        locations = self.pos_to_locations(pos_a, pos_b)
+        for t, (i, j) in zip(tokens, locations):
+            self.add_single_token_no_check(t, i, j)
+        return True
+
+    @staticmethod
+    def pos_to_locations(pos_a: LOCATION, pos_b: LOCATION) -> (List[LOCATION], Type[Direction]):
+        """Given two locations, supposedly on the same axis,
+        return the list of locations in between."""
+        assert pos_a[0] == pos_b[0] or pos_a[1] == pos_b[1]
+
+        assert pos_a[0] <= pos_b[0] and pos_a[1] <= pos_b[1]
+
+        if pos_a[0] == pos_b[0]:
+            locations = [(pos_a[0], k) for k in range(pos_a[1], pos_b[1] + 1)]
+            direction = Horizontal
+        else:
+            locations = [(k, pos_a[1]) for k in range(pos_a[0], pos_b[0] + 1)]
+            direction = Vertical
+
+        return locations, direction
+
+    def multi_droppable(self, tokens: List[Token], pos_a: Tuple[int, int], pos_b: Tuple[int, int]) -> bool:
+        """Checks if the given set of tokens can be dropped on the line
+        defined by the locations `pos_a` and `pos_b` (both ends included).
+
+        Assumption
+        ----------
+        The existing game must already satisfy the game rules.
+        """
+        locations, direction = self.pos_to_locations(pos_a, pos_b)
+
+        assert len(locations) == len(tokens)
+
+        if len(tokens) == 1:
+            return self.single_droppable(
+                tokens[0], locations[0][0], locations[0][1])
+
+        # You cannot be consistent and have more token than the order
+        if len(tokens) > self.order:
+            return False
+
+        # Drop locations must be empty
+        for t, (i, j) in zip(tokens, locations):
+            if self.has_token_at(i, j):
+                return False
+
+        # Perpendicular widest lines must be consistent
+        for t, (i, j) in zip(tokens, locations):
+            line_t = self.get_widest_line(i, j, direction.perpendicular(), token=t)
+            if not self.token_set.line_consistency(line_t):
+                return False
+
+        # Line in the main direction must be consistent
+        line_dir = self.get_multi_widest_line(tokens, pos_a, pos_b, direction)
+        if not self.token_set.line_consistency(line_dir):
             return False
 
         return True
@@ -193,6 +266,32 @@ class Board:
             i_prev, j_prev = direction.prev(i_prev, j_prev)
 
         return elements
+
+    def get_multi_widest_line(self, tokens: List[Token], pos_a: LOCATION, pos_b: LOCATION, direction: Type[Direction]):
+        """Returns the widest line that can be formed in the provided
+        direction, when dropping the tokens in the locations defined by
+        the line `pos_a` to `pos_b`.
+
+        Beware, there is no consistency check regarding whether the line
+        described by pos_a and pos_b make sense [!]
+        """
+        i0, j0 = pos_a
+        i_prev, j_prev = direction.prev(i0, j0)
+        i1, j1 = pos_b
+        i_next, j_next = direction.next(i1, j1)
+
+        if self.has_token_at(i_prev, j_prev):
+            line_before = self.get_widest_line(i_prev, j_prev, direction)
+        else:
+            line_before = list()
+
+        if self.has_token_at(i_next, j_next):
+            line_after = self.get_widest_line(i_next, j_next, direction)
+        else:
+            line_after = list()
+
+        line_dir = line_before + tokens + line_after
+        return line_dir
 
     def has_token_at(self, i: int, j: int):
         """Says whether a token has been dropped at location (i, j)"""

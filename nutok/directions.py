@@ -9,6 +9,10 @@ class Direction:
     def prev(i, j):
         raise NotImplemented
 
+    @staticmethod
+    def perpendicular():
+        raise NotImplemented
+
 
 class Vertical(Direction):
 
@@ -20,6 +24,10 @@ class Vertical(Direction):
     def prev(i, j):
         return i - 1, j
 
+    @staticmethod
+    def perpendicular():
+        return Horizontal
+
 
 class Horizontal(Direction):
 
@@ -30,3 +38,7 @@ class Horizontal(Direction):
     @staticmethod
     def prev(i, j):
         return i, j - 1
+
+    @staticmethod
+    def perpendicular():
+        return Vertical
