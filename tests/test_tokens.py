@@ -6,7 +6,7 @@ from nutok.tokens import Shape, Color, Token, TokenSet
 class TestToken(unittest.TestCase):
 
     def test_resources(self):
-        """There must be as many colors as pieces"""
+        """There must be as many colors as shapes"""
         self.assertEqual(len(Shape), len(Color))
 
     def test_single_token(self):
@@ -37,7 +37,21 @@ class TestToken(unittest.TestCase):
         """Tests the number of tokens"""
         for k in range(1, len(Shape) + 1):
             ts = TokenSet(k)
-            self.assertEqual(ts.token_number(), k**2)
+            self.assertEqual(ts.token_number, k**2)
+
+    def test_contains(self):
+        """Tests the 'contains' method"""
+        ts = TokenSet(8)
+        for t in ts.all_tokens():
+            self.assertTrue(t in ts)
+
+        small_ts = TokenSet(3)
+        shapes = list(Shape)[4:]
+        colors = list(Color)[4:]
+        for s in shapes:
+            for c in colors:
+                t = Token(s, c)
+                self.assertFalse(t in small_ts)
 
     def test_consistency(self):
         pass

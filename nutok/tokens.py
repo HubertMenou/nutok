@@ -80,6 +80,12 @@ MAX_TOKEN_ORDER = min(len(Shape), len(Color))
 class TokenSet:
 
     def __init__(self, order: int):
+        """Defines a set of unique tokens
+
+        The order denotes the number of unique shape,
+        and the number of unique colors, that will be used to
+        create order^2 tokens.
+        """
         self.order = order
         self._token_number = order * order
         self._shapes = list(_SHAPES.keys())[:order]
@@ -91,10 +97,17 @@ class TokenSet:
                 t = Token(p, c)
                 self._tokens[t] = (_SHAPES[p], _COLORS[c])
 
+    def __contains__(self, tok: Token):
+        if not isinstance(tok, Token):
+            raise TypeError(f"expected Token, not: {type(tok)}")
+        return tok in self._tokens
+
+    @property
     def token_number(self):
         return self._token_number
 
     def all_tokens(self) -> List[Token]:
+        """Returns a list of all tokens"""
         return list(self._tokens.keys())
 
     def __str__(self):
