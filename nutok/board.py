@@ -120,6 +120,11 @@ class Board:
         """Adds a token without checking the games rules"""
         self.dropped[(i, j)] = token
 
+    def drop_first_token(self, token: Token):
+        """Drops the first token at (0, 0)"""
+        assert self.is_empty()
+        self.add_single_token_no_check(token, 0, 0)
+
     def single_droppable(self, token: Token, i: int, j: int) -> bool:
         """Checks if provided token can be dropped at (i, j)
 
