@@ -7,6 +7,7 @@ class Board:
 
     TOKEN_SEPARATOR = "  "
     TOKEN_REPLACEMENT = len(str(Token(Shape.SQUARE, Color.PURPLE))) * ' '
+    EMPTY_BOARD_TXT = "<EmptyBoard>"
 
     def __init__(self, order: int):
         """
@@ -30,7 +31,7 @@ class Board:
     def __str__(self):
         """Prints a simple representation of the board"""
         if self.is_empty():
-            return "<EmptyBoard>"
+            return self.EMPTY_BOARD_TXT
 
         r0, r1 = self.min_vert(), self.max_vert()
         c0, c1 = self.min_horiz(), self.max_horiz()
@@ -52,7 +53,7 @@ class Board:
         with row and column indices on the sides"""
 
         if self.is_empty():
-            return "<EmptyNirkelBoard>"
+            return self.EMPTY_BOARD_TXT
 
         r0, r1 = self.min_vert(), self.max_vert()
         c0, c1 = self.min_horiz(), self.max_horiz()
