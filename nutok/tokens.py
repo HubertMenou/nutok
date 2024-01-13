@@ -123,16 +123,17 @@ class TokenSet:
         Trivial lines are assumed to be consistent (len 0 or 1).
         """
         if len(line) <= 1:
+            # Trivial lines are always consistent
             return True
 
         if len(line) > self.order:
+            # Lines with more elements than the order cannot be consistent
             return False
 
+        # Checks if the line is of same colors or same shapes
         ta, tb = line[0], line[1]
-
         if ta.shape != tb.shape and ta.color != tb.color:
             return False
-
         if ta.shape == tb.shape and ta.color == tb.color:
             return False
 

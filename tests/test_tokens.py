@@ -54,7 +54,52 @@ class TestToken(unittest.TestCase):
                 self.assertFalse(t in small_ts)
 
     def test_consistency(self):
-        pass
+        tsp = Token(Shape.SQUARE, Color.PURPLE)
+        tdp = Token(Shape.DIAMOND, Color.PURPLE)
+        tcp = Token(Shape.CIRCLE, Color.PURPLE)
+        tap = Token(Shape.ARROW, Color.PURPLE)
+        tkp = Token(Shape.KNIGHT, Color.PURPLE)
+
+        tsb = Token(Shape.SQUARE, Color.BLUE)
+        tst = Token(Shape.SQUARE, Color.TURQUOISE)
+        tsg = Token(Shape.SQUARE, Color.GREEN)
+        tsy = Token(Shape.SQUARE, Color.YELLOW)
+        tso = Token(Shape.SQUARE, Color.ORANGE)
+        tsr = Token(Shape.SQUARE, Color.RED)
+        tsw = Token(Shape.SQUARE, Color.WHITE)
+
+        ts = TokenSet(len(Shape))
+
+        # -- Consistent lines --
+
+        # Trivial lines
+        self.assertTrue(ts.line_consistency(list()))
+        self.assertTrue(ts.line_consistency([tsp]))
+
+        # Consistent same-color line
+        self.assertTrue(ts.line_consistency([tsp, tdp]))
+        self.assertTrue(ts.line_consistency([tsp, tdp, tcp]))
+        self.assertTrue(ts.line_consistency([tsp, tdp, tcp, tap, tkp]))
+
+        # Consistent same-shape line
+        self.assertTrue(ts.line_consistency([tsp, tsb]))
+        self.assertTrue(ts.line_consistency([tsp, tsb, tst]))
+        self.assertTrue(ts.line_consistency([tsp, tsb, tst, tsg]))
+        self.assertTrue(ts.line_consistency([tsp, tsb, tst, tsg, tsy]))
+        self.assertTrue(ts.line_consistency([tsp, tsb, tst, tsg, tsy, tso]))
+        self.assertTrue(ts.line_consistency([tsp, tsb, tst, tsg, tsy, tso, tsr]))
+        self.assertTrue(ts.line_consistency([tsp, tsb, tst, tsg, tsy, tso, tsr, tsw]))
+
+        # -- Inconsistent lines --
+
+        # Twice the same token
+        self.assertFalse(ts.line_consistency([tsb, tsb]))
+        # Incompatible tokens
+        self.assertFalse(ts.line_consistency([tdp, tsb]))
+        # One incompatible token
+        self.assertFalse(ts.line_consistency([tsp, tsb, tdp]))
+        # Line too long to be consistent
+        self.assertFalse(ts.line_consistency([tsp, tsb, tst, tsg, tsy, tso, tsr, tsw, tsp, tsp]))
 
 
 if __name__ == '__main__':
